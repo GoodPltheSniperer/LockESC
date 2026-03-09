@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LockESC — Releases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+  :root {
+    --bg:      #030a0f;
+    --surface: #07141d;
+    --surface2:#0b1e2d;
+    --border:  #0d2a3a;
+    --cyan:    #00e5ff;
+    --cyan-dim:#007a8c;
+    --amber:   #ffb300;
+    --red:     #ff1744;
+    --green:   #00e676;
+    --text:    #c0d8e0;
+    --dim:     #3a5a6a;
+    --mono:    'Share Tech Mono', monospace;
+    --head:    'Orbitron', sans-serif;
+    --body:    'Rajdhani', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--body); font-size: 16px; line-height: 1.6;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.13) 2px, rgba(0,0,0,0.13) 4px);
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(3,10,15,0.93); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: var(--head); font-size: 1.05rem; font-weight: 700;
+    color: var(--cyan); letter-spacing: 0.15em; text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo::before { content: '▣'; font-size: 1.3rem; animation: lp 2.5s ease-in-out infinite; }
+  @keyframes lp {
+    0%,100%{ opacity:1; text-shadow:0 0 10px var(--cyan); } 50%{ opacity:.35; }
+  }
+  .nav-links { display: flex; gap: 1.4rem; align-items: center; }
+  .nav-links a {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--dim);
+    text-decoration: none; letter-spacing: 0.1em; transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-links a.active { color: var(--amber); }
+  .nav-links a.gh-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border: 1px solid var(--border); border-radius: 3px;
+    transition: border-color .2s;
+  }
+  .nav-links a.gh-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .hero {
+    position: relative; z-index: 1;
+    padding: 5rem 2rem 3rem; text-align: center;
+  }
+  .hero-glow {
+    position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 320px; pointer-events: none;
+    background: radial-gradient(ellipse, rgba(0,229,255,0.07) 0%, transparent 70%);
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 0.68rem; color: var(--cyan-dim);
+    letter-spacing: 0.3em; margin-bottom: 1rem;
+  }
+  h1 {
+    font-family: var(--head); font-size: clamp(2.4rem,6vw,4.2rem); font-weight: 900;
+    letter-spacing: 0.05em; color: #fff; text-shadow: 0 0 40px rgba(0,229,255,.25);
+    line-height: 1.1;
+  }
+  h1 span { color: var(--cyan); }
+  .hero-sub {
+    font-family: var(--mono); font-size: 0.82rem; color: var(--dim);
+    margin-top: .7rem; letter-spacing: 0.05em;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 960px; margin: 0 auto; padding: 0 2rem 5rem;
+  }
+  .sh { display: flex; align-items: center; gap: 1rem; margin: 2.5rem 0 1.2rem; }
+  .sh h2 {
+    font-family: var(--head); font-size: .82rem; font-weight: 700;
+    letter-spacing: .25em; color: var(--cyan); text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .sh::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  .state-box {
+    text-align: center; padding: 3.5rem 2rem;
+    font-family: var(--mono); font-size: .78rem; color: var(--dim);
+  }
+  .spinner {
+    width: 30px; height: 30px; margin: 0 auto 1rem;
+    border: 2px solid var(--border); border-top-color: var(--cyan);
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .state-box.err { color: var(--red); }
+  .state-box .hint { color: var(--dim); font-size: .65rem; margin-top: .5rem; line-height: 1.6; }
+
+  .rate-warn {
+    font-family: var(--mono); font-size: .65rem; color: var(--amber);
+    background: rgba(255,179,0,.06); border: 1px solid rgba(255,179,0,.2);
+    border-radius: 3px; padding: 7px 12px; margin-bottom: 1rem; display: none;
+  }
+  .rate-warn.show { display: block; }
+
+  .release-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; margin-bottom: 1.2rem; overflow: hidden;
+    animation: fadeUp .35s ease both;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .release-card:hover { border-color: var(--cyan-dim); box-shadow: 0 0 28px rgba(0,229,255,.05); }
+  .release-card.latest {
+    border-color: rgba(0,229,255,.28);
+    box-shadow: 0 0 38px rgba(0,229,255,.055);
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(12px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .card-head {
+    padding: 1.1rem 1.4rem;
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-meta { display: flex; flex-direction: column; gap: 3px; }
+  .card-version {
+    font-family: var(--head); font-size: 1.3rem; font-weight: 700;
+    color: #fff; letter-spacing: .05em;
+  }
+  .release-card.latest .card-version { color: var(--cyan); }
+  .card-name { font-family: var(--body); font-size: .95rem; font-weight: 500; color: var(--text); }
+  .card-date { font-family: var(--mono); font-size: .63rem; color: var(--dim); letter-spacing: .07em; }
+  .tag-row { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 3px; }
+  .tag {
+    font-family: var(--mono); font-size: .58rem; letter-spacing: .1em;
+    padding: 2px 7px; border-radius: 2px; border: 1px solid;
+  }
+  .tag-latest { color:var(--green);  border-color:rgba(0,230,118,.4);  background:rgba(0,230,118,.05); }
+  .tag-pre    { color:var(--amber);  border-color:rgba(255,179,0,.4);  background:rgba(255,179,0,.05); }
+  .tag-stable { color:var(--cyan);   border-color:rgba(0,229,255,.3);  background:rgba(0,229,255,.04); }
+
+  .dl-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+  .dl-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: transparent; border: 1px solid var(--cyan); color: var(--cyan);
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+    padding: 8px 14px; border-radius: 3px; text-decoration: none;
+    transition: all .15s; white-space: nowrap;
+  }
+  .dl-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 18px rgba(0,229,255,.35); }
+  .dl-btn.primary { background: rgba(0,229,255,.09); }
+  .dl-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+  .dl-btn .sz { font-size: .58rem; color: var(--cyan-dim); }
+  .dl-btn:hover .sz { color: var(--bg); }
+  .src-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: .66rem; color: var(--dim);
+    text-decoration: none; padding: 8px 12px;
+    border: 1px solid var(--border); border-radius: 3px; transition: all .15s;
+  }
+  .src-link:hover { color: var(--cyan); border-color: var(--cyan-dim); }
+
+  .cl-toggle {
+    width: 100%; background: none; border: none; cursor: pointer;
+    padding: 9px 1.4rem; display: flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: .66rem; color: var(--dim);
+    letter-spacing: .1em; text-align: left; transition: color .2s;
+  }
+  .cl-toggle:hover { color: var(--cyan); }
+  .cl-arrow { transition: transform .2s; }
+  .cl-toggle.open .cl-arrow { transform: rotate(90deg); }
+  .cl-body {
+    display: none; padding: .8rem 1.4rem 1.2rem;
+    border-top: 1px solid var(--border);
+  }
+  .cl-body.open { display: block; }
+  .cl-body h1,.cl-body h2,.cl-body h3 {
+    font-family: var(--mono); font-size: .73rem; font-weight: normal;
+    color: var(--cyan); letter-spacing: .1em; margin: .9rem 0 .4rem;
+  }
+  .cl-body ul { padding-left: 1.2rem; }
+  .cl-body li { font-family: var(--mono); font-size: .75rem; color: var(--text); margin-bottom: 3px; }
+  .cl-body li::marker { color: var(--cyan-dim); }
+  .cl-body p { font-family: var(--mono); font-size: .75rem; color: var(--text); margin-bottom: .4rem; }
+  .cl-body code {
+    background: rgba(0,229,255,.07); border: 1px solid rgba(0,229,255,.15);
+    padding: 1px 5px; border-radius: 2px; color: var(--cyan);
+    font-family: var(--mono); font-size: .73rem;
+  }
+  .cl-body a { color: var(--cyan); }
+  .cl-body hr { border-color: var(--border); margin: .7rem 0; }
+
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: .7rem; }
+  th {
+    color: var(--cyan-dim); letter-spacing: .12em; font-weight: normal;
+    text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border);
+  }
+  td { padding: 8px 10px; border-bottom: 1px solid rgba(13,42,58,.5); color: var(--dim); vertical-align: middle; }
+  tr:hover td { background: rgba(0,229,255,.018); color: var(--text); }
+  .ver-col { color: var(--text); }
+
+  .install-box {
+    background: rgba(0,0,0,.4); border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan); border-radius: 0 4px 4px 0;
+    padding: 1.25rem 1.5rem; margin: 1.5rem 0;
+  }
+  .install-box h3 {
+    font-family: var(--head); font-size: .76rem; letter-spacing: .2em;
+    color: var(--cyan); margin-bottom: 1rem; text-transform: uppercase;
+  }
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+  .step { display: flex; gap: 13px; align-items: flex-start; font-size: .9rem; }
+  .snum {
+    font-family: var(--mono); font-size: .6rem; color: var(--bg);
+    background: var(--cyan); min-width: 19px; height: 19px; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 3px;
+  }
+  code.i {
+    font-family: var(--mono); font-size: .76rem;
+    background: rgba(0,229,255,.07); border: 1px solid rgba(0,229,255,.15);
+    padding: 1px 7px; border-radius: 2px; color: var(--cyan);
+  }
+
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border); padding: 1.4rem 2rem;
+    text-align: center; font-family: var(--mono); font-size: .65rem;
+    color: var(--dim); letter-spacing: .08em;
+  }
+  footer a { color: var(--cyan-dim); text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="releases.html" class="nav-logo">LOCKESC</a>
+  <div class="nav-links">
+    <a href="releases.html" class="active">RELEASES</a>
+    <a href="workshop.html">WORKSHOP</a>
+    <a id="ghLink" href="#" class="gh-btn" target="_blank">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.745 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      GITHUB
+    </a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">// official distribution</div>
+  <h1>LOCK<span>ESC</span><br>RELEASES</h1>
+  <p class="hero-sub">stealth &nbsp;·&nbsp; puzzle &nbsp;·&nbsp; cooperative &nbsp;·&nbsp; python / pygame</p>
+</div>
+
+<div class="container">
+  <div id="rateWarn" class="rate-warn">
+    ⚠ &nbsp;GitHub API rate limit reached (60 req/hr unauthenticated). Try again in a few minutes.
+  </div>
+
+  <div class="sh"><h2>Latest Release</h2></div>
+  <div id="latestSlot"><div class="state-box"><div class="spinner"></div>Fetching from GitHub…</div></div>
+
+  <div class="sh"><h2>All Releases</h2></div>
+  <div id="allSlot"></div>
+
+  <div class="sh"><h2>Version History</h2></div>
+  <div id="tableSlot"><div class="state-box"><div class="spinner"></div></div></div>
+
+  <div class="sh"><h2>Installation</h2></div>
+  <div class="install-box">
+    <h3>// Quick Start — Windows</h3>
+    <div class="steps">
+      <div class="step"><div class="snum">1</div><div>Download the latest <code class="i">.zip</code> above and extract to any folder (e.g. <code class="i">D:\Games\LockESC\</code>)</div></div>
+      <div class="step"><div class="snum">2</div><div>Install Python 3.11+ from <a href="https://python.org" target="_blank" style="color:var(--cyan)">python.org</a> — tick <em>"Add to PATH"</em></div></div>
+      <div class="step"><div class="snum">3</div><div>In the extracted folder: <code class="i">pip install pygame</code></div></div>
+      <div class="step"><div class="snum">4</div><div>Launch: <code class="i">python lockesc_tracebackfinder.py</code> or double-click <code class="i">run_lockesc.bat</code></div></div>
+      <div class="step"><div class="snum">5</div><div>Custom levels → <code class="i">%USERPROFILE%\levels\</code> &nbsp;&middot;&nbsp; Multiplayer → <code class="i">%USERPROFILE%\mplevels\</code></div></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  LOCKESC &nbsp;&middot;&nbsp; data via <a id="apiLink" href="#" target="_blank">GitHub Releases API</a>
+  &nbsp;&middot;&nbsp; <a href="workshop.html">level workshop</a>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+//  ↓ SET YOUR REPO HERE
+const OWNER = 'GoodPltheSniperer';   // GitHub username or org
+const REPO  = 'LockESC';    // Repository name
+// ═══════════════════════════════════════════
+
+const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}`;
+const GH       = `https://github.com/${OWNER}/${REPO}`;
+
+document.getElementById('ghLink').href  = GH;
+document.getElementById('apiLink').href = `${API_BASE}/releases`;
+
+// ── utils ─────────────────────────────────────────────────────────────────────
+const fmtDate = iso => new Date(iso).toISOString().slice(0,10);
+const fmtSize = b  => !b ? '' : b < 1<<20 ? `${(b>>10)} KB` : `${(b/1048576).toFixed(1)} MB`;
+const dlSvg   = () => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`;
+const ghSvg   = () => `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.745 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>`;
+
+let _cardIdx = 0;
+
+function renderCard(rel, isLatest) {
+  const tag    = rel.tag_name || '';
+  const name   = rel.name && rel.name !== tag ? rel.name : '';
+  const date   = fmtDate(rel.published_at || rel.created_at);
+  const body   = rel.body || '_No changelog provided._';
+  const assets = rel.assets || [];
+  const id     = `cl-${_cardIdx++}`;
+
+  let tags = '';
+  if (isLatest)       tags += `<span class="tag tag-latest">LATEST</span>`;
+  if (rel.prerelease) tags += `<span class="tag tag-pre">PRE-RELEASE</span>`;
+  else                tags += `<span class="tag tag-stable">STABLE</span>`;
+
+  // One download button per uploaded asset
+  let dlBtns = assets.map(a => `
+    <a href="${a.browser_download_url}" class="dl-btn ${isLatest?'primary':''}" download>
+      ${dlSvg()} ${a.name} <span class="sz">${fmtSize(a.size)}</span>
+    </a>`).join('');
+
+  // Source code fallback
+  dlBtns += `
+    <a href="${GH}/archive/refs/tags/${encodeURIComponent(tag)}.zip"
+       class="src-link" target="_blank">${ghSvg()} SOURCE</a>`;
+
+  return `
+  <div class="release-card ${isLatest?'latest':''}">
+    <div class="card-head">
+      <div class="card-meta">
+        <div class="card-version">${tag}</div>
+        ${name ? `<div class="card-name">${name}</div>` : ''}
+        <div class="card-date">${date}</div>
+        <div class="tag-row">${tags}</div>
+      </div>
+      <div class="dl-group">${dlBtns}</div>
+    </div>
+    <button class="cl-toggle ${isLatest?'open':''}" onclick="toggleCL(this,'${id}')">
+      <span class="cl-arrow">▶</span>&nbsp;&nbsp;CHANGELOG &mdash; ${tag}
+    </button>
+    <div class="cl-body ${isLatest?'open':''}" id="${id}">
+      ${marked.parse(body)}
+    </div>
+  </div>`;
+}
+
+function renderTable(releases) {
+  if (!releases.length) return `<p style="font-family:var(--mono);font-size:.75rem;color:var(--dim)">No releases yet.</p>`;
+  const rows = releases.map(r => {
+    const tag  = r.tag_name || '';
+    const date = fmtDate(r.published_at || r.created_at);
+    const type = r.prerelease
+      ? `<span class="tag tag-pre">PRE</span>`
+      : `<span class="tag tag-stable">STABLE</span>`;
+    const a  = r.assets?.[0];
+    const sz = a ? fmtSize(a.size) : '—';
+    const dl = a
+      ? `<a href="${a.browser_download_url}" class="dl-btn" style="padding:4px 10px;font-size:.63rem" download>↓ ZIP</a>`
+      : `<a href="${GH}/archive/refs/tags/${encodeURIComponent(tag)}.zip" class="dl-btn" style="padding:4px 10px;font-size:.63rem" target="_blank">↓ SRC</a>`;
+    return `<tr>
+      <td class="ver-col">${tag}</td>
+      <td>${date}</td>
+      <td>${type}</td>
+      <td>${sz}</td>
+      <td>${dl}</td>
+    </tr>`;
+  }).join('');
+  return `<table>
+    <thead><tr><th>TAG</th><th>DATE</th><th>TYPE</th><th>SIZE</th><th>DOWNLOAD</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function toggleCL(btn, id) {
+  btn.classList.toggle('open');
+  document.getElementById(id).classList.toggle('open');
+}
+
+async function load() {
+  try {
+    const res = await fetch(`${API_BASE}/releases`, {
+      headers: { Accept: 'application/vnd.github+json' }
+    });
+
+    if (res.status === 403 || res.status === 429)
+      document.getElementById('rateWarn').classList.add('show');
+
+    if (!res.ok) {
+      const msg = res.status === 404
+        ? `Repository <strong>${OWNER}/${REPO}</strong> not found, or no releases published yet.`
+        : `GitHub API returned ${res.status} ${res.statusText}`;
+      const hint = `<div class="hint">Edit <code>OWNER</code> and <code>REPO</code> in the &lt;script&gt; block at the bottom of this file.</div>`;
+      ['latestSlot','allSlot','tableSlot'].forEach(id =>
+        document.getElementById(id).innerHTML = `<div class="state-box err">${msg}${hint}</div>`);
+      return;
+    }
+
+    const releases = await res.json();
+
+    if (!releases.length) {
+      ['latestSlot','allSlot','tableSlot'].forEach(id =>
+        document.getElementById(id).innerHTML =
+          `<div class="state-box">No releases published yet on <a href="${GH}/releases" target="_blank" style="color:var(--cyan)">${OWNER}/${REPO}</a>.</div>`);
+      return;
+    }
+
+    document.getElementById('latestSlot').innerHTML = renderCard(releases[0], true);
+    document.getElementById('allSlot').innerHTML = releases.slice(1).length
+      ? releases.slice(1).map(r => renderCard(r, false)).join('')
+      : `<p style="font-family:var(--mono);font-size:.74rem;color:var(--dim);padding:.4rem 0">Only one release so far.</p>`;
+    document.getElementById('tableSlot').innerHTML = renderTable(releases);
+
+  } catch(e) {
+    const msg = `<div class="state-box err">Network error — could not reach GitHub API.<div class="hint">${e.message}</div></div>`;
+    ['latestSlot','allSlot','tableSlot'].forEach(id =>
+      document.getElementById(id).innerHTML = msg);
+  }
+}
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LockESC — Level Workshop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<style>
+  :root {
+    --bg:      #030a0f;
+    --surface: #07141d;
+    --surface2:#0b1e2d;
+    --border:  #0d2a3a;
+    --cyan:    #00e5ff;
+    --cyan-dim:#007a8c;
+    --amber:   #ffb300;
+    --red:     #ff1744;
+    --green:   #00e676;
+    --purple:  #c084fc;
+    --purp-dim:#6b21a8;
+    --text:    #c0d8e0;
+    --dim:     #3a5a6a;
+    --mono:    'Share Tech Mono', monospace;
+    --head:    'Orbitron', sans-serif;
+    --body:    'Rajdhani', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--body); font-size: 16px; line-height: 1.6;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px,
+      rgba(0,0,0,0.13) 2px, rgba(0,0,0,0.13) 4px);
+  }
+  body::after {
+    content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.02) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(3,10,15,0.93); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: var(--head); font-size: 1.05rem; font-weight: 700;
+    color: var(--cyan); letter-spacing: 0.15em; text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-logo::before { content: '▣'; font-size: 1.3rem; animation: lp 2.5s ease-in-out infinite; }
+  @keyframes lp {
+    0%,100%{ opacity:1; text-shadow:0 0 10px var(--cyan); } 50%{ opacity:.35; }
+  }
+  .nav-links { display: flex; gap: 1.4rem; align-items: center; }
+  .nav-links a {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--dim);
+    text-decoration: none; letter-spacing: 0.1em; transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--cyan); }
+  .nav-links a.active { color: var(--amber); }
+  .nav-links a.gh-btn {
+    display: flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border: 1px solid var(--border); border-radius: 3px;
+    transition: border-color .2s;
+  }
+  .nav-links a.gh-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .hero {
+    position: relative; z-index: 1;
+    padding: 5rem 2rem 3rem; text-align: center;
+  }
+  .hero-glow {
+    position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+    width: 700px; height: 320px; pointer-events: none;
+    background: radial-gradient(ellipse, rgba(192,132,252,0.065) 0%, transparent 70%);
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 0.68rem; color: var(--cyan-dim);
+    letter-spacing: 0.3em; margin-bottom: 1rem;
+  }
+  h1 {
+    font-family: var(--head); font-size: clamp(2.2rem,5vw,3.8rem); font-weight: 900;
+    letter-spacing: 0.05em; color: #fff; text-shadow: 0 0 40px rgba(192,132,252,.22);
+    line-height: 1.1;
+  }
+  h1 span { color: var(--purple); }
+  .hero-sub {
+    font-family: var(--mono); font-size: 0.82rem; color: var(--dim);
+    margin-top: .7rem; letter-spacing: 0.05em;
+  }
+  .stat-strip {
+    display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap;
+    margin-top: 2rem; padding: 1.2rem 0;
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .stat { text-align: center; }
+  .stat-n { font-family: var(--head); font-size: 1.55rem; font-weight: 700; color: var(--purple); }
+  .stat-l { font-family: var(--mono); font-size: .62rem; color: var(--dim); letter-spacing: .1em; margin-top: 2px; }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 1060px; margin: 0 auto; padding: 0 2rem 5rem;
+  }
+  .sh { display: flex; align-items: center; gap: 1rem; margin: 2.5rem 0 1.2rem; }
+  .sh h2 {
+    font-family: var(--head); font-size: .82rem; font-weight: 700;
+    letter-spacing: .25em; color: var(--purple); text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .sh::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* ── SUBMIT PANEL ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 680px) { .two-col { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1.75rem;
+  }
+  .panel h3 {
+    font-family: var(--head); font-size: .82rem; font-weight: 700;
+    letter-spacing: .2em; color: var(--purple); text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  /* submit button — opens GitHub new issue with pre-filled template */
+  .submit-area {
+    background: rgba(192,132,252,.04);
+    border: 2px dashed rgba(192,132,252,.25);
+    border-radius: 4px; padding: 2rem 1.5rem;
+    text-align: center; margin-bottom: 1.5rem;
+    transition: border-color .2s, background .2s;
+  }
+  .submit-area:hover {
+    border-color: var(--purple);
+    background: rgba(192,132,252,.07);
+  }
+  .submit-icon { font-size: 2.4rem; margin-bottom: .7rem; }
+  .submit-area p {
+    font-family: var(--mono); font-size: .73rem; color: var(--dim);
+    line-height: 1.8; margin-bottom: 1rem;
+  }
+  .submit-area p strong { color: var(--purple); }
+  .submit-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(192,132,252,.1); border: 1px solid var(--purple);
+    color: var(--purple); font-family: var(--mono); font-size: .73rem;
+    letter-spacing: .12em; padding: 10px 22px; border-radius: 3px;
+    text-decoration: none; transition: all .15s;
+  }
+  .submit-btn:hover {
+    background: var(--purple); color: var(--bg);
+    box-shadow: 0 0 22px rgba(192,132,252,.4);
+  }
+  .submit-note {
+    font-family: var(--mono); font-size: .62rem; color: var(--dim);
+    margin-top: .9rem; line-height: 1.7;
+  }
+  .submit-note code {
+    background: rgba(192,132,252,.08); border: 1px solid rgba(192,132,252,.2);
+    padding: 1px 5px; border-radius: 2px; color: var(--purple);
+    font-family: var(--mono); font-size: .62rem;
+  }
+
+  /* install panel */
+  .install-step { display: flex; gap: 13px; align-items: flex-start; font-size: .9rem; margin-bottom: 10px; }
+  .snum {
+    font-family: var(--mono); font-size: .58rem; color: var(--bg);
+    background: var(--cyan); min-width: 18px; height: 18px; border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 3px;
+  }
+  code.i {
+    font-family: var(--mono); font-size: .76rem;
+    background: rgba(0,229,255,.07); border: 1px solid rgba(0,229,255,.15);
+    padding: 1px 6px; border-radius: 2px; color: var(--cyan);
+  }
+  .path-box {
+    background: rgba(0,0,0,.5); border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan); border-radius: 0 3px 3px 0;
+    padding: 9px 13px; font-family: var(--mono); font-size: .75rem;
+    color: var(--cyan); margin-top: 6px; line-height: 1.9;
+  }
+  .path-box span { color: var(--dim); font-size: .62rem; display: block; }
+
+  .fmt-box {
+    background: rgba(0,0,0,.45); border: 1px solid var(--border); border-radius: 3px;
+    overflow: hidden; margin-top: 1rem;
+  }
+  .fmt-head {
+    padding: 8px 14px; background: rgba(0,229,255,.035);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono); font-size: .66rem; color: var(--cyan); letter-spacing: .12em;
+  }
+  .fmt-body {
+    padding: .9rem 1.1rem; font-family: var(--mono); font-size: .72rem;
+    line-height: 1.85; color: var(--text); white-space: pre;
+  }
+  .k { color: var(--cyan-dim); }
+  .v { color: var(--amber); }
+  .c { color: var(--dim); }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.4rem; align-items: center;
+  }
+  .search-inp {
+    flex: 1; min-width: 200px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 3px;
+    padding: 8px 13px; font-family: var(--mono); font-size: .76rem;
+    color: var(--text); outline: none; transition: border-color .2s;
+  }
+  .search-inp:focus { border-color: var(--cyan); }
+  .search-inp::placeholder { color: var(--dim); }
+  .fbtn {
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .08em;
+    padding: 8px 14px; border-radius: 3px; border: 1px solid var(--border);
+    background: transparent; color: var(--dim); cursor: pointer; transition: all .15s;
+  }
+  .fbtn:hover, .fbtn.on { border-color: var(--cyan); color: var(--cyan); }
+  .fbtn.on { background: rgba(0,229,255,.07); }
+
+  /* ── LEVEL GRID ── */
+  .level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .lcard {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 4px; overflow: hidden; cursor: pointer;
+    transition: border-color .2s, transform .2s, box-shadow .2s;
+    animation: fadeUp .3s ease both;
+    text-decoration: none; display: block; color: inherit;
+  }
+  .lcard:hover {
+    border-color: var(--cyan-dim); transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,229,255,.065);
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(10px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .lcard-thumb {
+    width: 100%; aspect-ratio: 16/9;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.2rem; position: relative; overflow: hidden;
+  }
+  .lcard-thumb .grid-bg {
+    position: absolute; inset: 0; opacity: .2;
+    background-image:
+      linear-gradient(rgba(0,229,255,.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,.5) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .lcard-thumb::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 55%, rgba(7,20,29,.92) 100%);
+  }
+
+  .lcard-body { padding: 11px 13px; }
+  .lcard-title {
+    font-family: var(--head); font-size: .82rem; font-weight: 700;
+    color: #fff; letter-spacing: .04em; margin-bottom: 3px;
+  }
+  .lcard-author { font-family: var(--mono); font-size: .62rem; color: var(--dim); margin-bottom: 7px; }
+  .lcard-desc {
+    font-family: var(--body); font-size: .82rem; color: var(--text);
+    line-height: 1.4; margin-bottom: 9px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .tag-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+  .ltag {
+    font-family: var(--mono); font-size: .55rem; letter-spacing: .08em;
+    padding: 2px 6px; border-radius: 2px; border: 1px solid;
+  }
+  .ltag-mp   { color:var(--purple); border-color:rgba(192,132,252,.35); }
+  .ltag-sp   { color:var(--cyan);   border-color:rgba(0,229,255,.3); }
+  .ltag-hard { color:var(--red);    border-color:rgba(255,23,68,.35); }
+  .ltag-easy { color:var(--green);  border-color:rgba(0,230,118,.35); }
+  .ltag-med  { color:var(--amber);  border-color:rgba(255,179,0,.35); }
+  .ltag-puzz { color:#94a3b8;       border-color:rgba(148,163,184,.35); }
+  .ltag-misc { color:var(--dim);    border-color:var(--border); }
+
+  .lcard-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--border); padding-top: 8px;
+  }
+  .lcard-stats { font-family: var(--mono); font-size: .6rem; color: var(--dim); display: flex; gap: 10px; }
+  .dl-sm {
+    font-family: var(--mono); font-size: .62rem; letter-spacing: .07em;
+    padding: 5px 11px; border: 1px solid var(--cyan-dim); color: var(--cyan);
+    border-radius: 2px; text-decoration: none; transition: all .15s;
+  }
+  .dl-sm:hover { background: var(--cyan); color: var(--bg); }
+
+  /* ── LOADING / EMPTY ── */
+  .state-box {
+    text-align: center; padding: 3rem 2rem;
+    font-family: var(--mono); font-size: .76rem; color: var(--dim);
+  }
+  .spinner {
+    width: 28px; height: 28px; margin: 0 auto .9rem;
+    border: 2px solid var(--border); border-top-color: var(--purple);
+    border-radius: 50%; animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .state-box.err { color: var(--red); }
+  .state-box .hint { color: var(--dim); font-size: .63rem; margin-top: .5rem; line-height: 1.6; }
+
+  .rate-warn {
+    font-family: var(--mono); font-size: .64rem; color: var(--amber);
+    background: rgba(255,179,0,.06); border: 1px solid rgba(255,179,0,.2);
+    border-radius: 3px; padding: 7px 12px; margin-bottom: 1rem; display: none;
+  }
+  .rate-warn.show { display: block; }
+
+  /* modal */
+  .modal-bg {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 1rem;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--cyan-dim);
+    border-radius: 4px; max-width: 600px; width: 100%;
+    max-height: 85vh; overflow-y: auto; padding: 1.75rem;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 12px; right: 14px;
+    background: none; border: none; color: var(--dim); font-size: 1.1rem;
+    cursor: pointer; transition: color .2s;
+  }
+  .modal-close:hover { color: var(--red); }
+  .modal h2 {
+    font-family: var(--head); font-size: .95rem; font-weight: 700;
+    color: var(--cyan); letter-spacing: .06em; margin-bottom: .3rem;
+  }
+  .modal-author { font-family: var(--mono); font-size: .65rem; color: var(--dim); margin-bottom: 1.1rem; }
+  .modal-body { font-family: var(--body); font-size: .9rem; color: var(--text); line-height: 1.6; }
+  .modal-body h1,.modal-body h2,.modal-body h3 { font-family: var(--mono); font-size: .75rem; color: var(--cyan); margin: .8rem 0 .3rem; }
+  .modal-body ul { padding-left: 1.2rem; }
+  .modal-body li { font-family: var(--mono); font-size: .75rem; color: var(--text); margin-bottom: 3px; }
+  .modal-body code { background: rgba(0,229,255,.07); border: 1px solid rgba(0,229,255,.15); padding: 1px 6px; border-radius: 2px; color: var(--cyan); font-family: var(--mono); font-size: .73rem; }
+  .modal-body a { color: var(--cyan); }
+  .modal-dl {
+    margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border);
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .modal-dl a {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .1em;
+    padding: 9px 16px; border: 1px solid; border-radius: 3px;
+    text-decoration: none; transition: all .15s;
+  }
+  .modal-dl .dl-main { color: var(--cyan); border-color: var(--cyan); background: rgba(0,229,255,.07); }
+  .modal-dl .dl-main:hover { background: var(--cyan); color: var(--bg); }
+  .modal-dl .dl-gh { color: var(--dim); border-color: var(--border); }
+  .modal-dl .dl-gh:hover { color: var(--cyan); border-color: var(--cyan-dim); }
+
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border); padding: 1.4rem 2rem;
+    text-align: center; font-family: var(--mono); font-size: .65rem;
+    color: var(--dim); letter-spacing: .08em;
+  }
+  footer a { color: var(--cyan-dim); text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<!-- modal for level detail -->
+<div class="modal-bg" id="modalBg" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalBox">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalTitle"></h2>
+    <div class="modal-author" id="modalAuthor"></div>
+    <div class="tag-row" id="modalTags"></div>
+    <div class="modal-body" id="modalBody" style="margin-top:.8rem"></div>
+    <div class="modal-dl" id="modalDl"></div>
+  </div>
+</div>
+
+<nav>
+  <a href="releases.html" class="nav-logo">LOCKESC</a>
+  <div class="nav-links">
+    <a href="releases.html">RELEASES</a>
+    <a href="workshop.html" class="active">WORKSHOP</a>
+    <a id="ghLink" href="#" class="gh-btn" target="_blank">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.745 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      GITHUB
+    </a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">// community content hub</div>
+  <h1>LEVEL<br><span>WORKSHOP</span></h1>
+  <p class="hero-sub">share custom levels &nbsp;·&nbsp; browse community missions &nbsp;·&nbsp; install in one step</p>
+  <div class="stat-strip">
+    <div class="stat"><div class="stat-n" id="statTotal">—</div><div class="stat-l">TOTAL LEVELS</div></div>
+    <div class="stat"><div class="stat-n" id="statCreators">—</div><div class="stat-l">CREATORS</div></div>
+    <div class="stat"><div class="stat-n" id="statMP">—</div><div class="stat-l">MP LEVELS</div></div>
+    <div class="stat"><div class="stat-n" id="statComments">—</div><div class="stat-l">REACTIONS</div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── SUBMIT + INSTALL ── -->
+  <div class="sh"><h2>Share Your Level</h2></div>
+  <div class="two-col">
+
+    <div class="panel">
+      <h3>// Upload a Level</h3>
+      <div class="submit-area">
+        <div class="submit-icon">📦</div>
+        <p>Levels are shared as <strong>GitHub Issues</strong>.<br>
+        Attach your <strong>.ler</strong> or <strong>.lep</strong> bundle (zipped),<br>
+        fill in the template, and submit.</p>
+        <a id="submitBtn" href="#" class="submit-btn" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.745 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          OPEN ISSUE ON GITHUB ↗
+        </a>
+      </div>
+      <div class="submit-note">
+        <strong style="color:var(--text)">How it works:</strong> clicking the button takes you to GitHub's
+        new issue form, pre-filled with a template. Attach your level ZIP to the issue body
+        (drag &amp; drop into the text area), add the label <code>level-submission</code>,
+        and submit. Your level will appear here once the issue is open.
+        <br><br>
+        Label guide: &nbsp;<code>sp</code> singleplayer &nbsp;·&nbsp; <code>mp</code> multiplayer
+        &nbsp;·&nbsp; <code>easy</code> <code>medium</code> <code>hard</code>
+        &nbsp;·&nbsp; <code>puzzle</code> <code>speedrun</code> <code>no-kill</code>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>// How to Install</h3>
+      <div class="install-step">
+        <div class="snum">1</div>
+        <div>Click a level card below and hit <strong>DOWNLOAD</strong> — or grab the ZIP attached to the GitHub issue</div>
+      </div>
+      <div class="install-step">
+        <div class="snum">2</div>
+        <div>Extract the ZIP — you should see a folder ending in <code class="i">.ler</code> or <code class="i">.lep</code></div>
+      </div>
+      <div class="install-step">
+        <div class="snum">3</div>
+        <div>
+          Drop the bundle folder into the right location:
+          <div class="path-box">
+            <span>SINGLEPLAYER</span>%USERPROFILE%\levels\
+            <span style="margin-top:6px">MULTIPLAYER CO-OP</span>%USERPROFILE%\mplevels\
+          </div>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="snum">4</div>
+        <div>Launch LockESC — level appears under <strong>CUSTOM</strong> in the level picker</div>
+      </div>
+      <div class="fmt-box">
+        <div class="fmt-head">// .LER BUNDLE STRUCTURE</div>
+        <div class="fmt-body"><span class="c">my_level.ler/        ← bundle folder</span>
+  <span class="k">├── room.ler         </span><span class="c">← JSON data</span>
+  <span class="k">└── assets/          </span><span class="c">← optional tiles
+
+</span><span class="c">Required keys in room.ler:</span>
+  <span class="k">"tiles"</span>: <span class="v">[[row, col, "type"], ...]</span>
+  <span class="k">"player_start"</span>: <span class="v">[tx, ty]</span>
+  <span class="k">"next_level"</span>: <span class="v">"../next.ler"</span>  <span class="c">(optional)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BROWSE ── -->
+  <div class="sh"><h2>Community Levels</h2></div>
+  <div id="rateWarn" class="rate-warn">
+    ⚠ &nbsp;GitHub API rate limit reached. Data may be incomplete — try again in a few minutes.
+  </div>
+
+  <div class="filter-bar">
+    <input class="search-inp" type="text" id="searchQ" placeholder="🔍  search levels or authors…" oninput="applyFilter()">
+    <button class="fbtn on" onclick="setFilter(this,'all')">ALL</button>
+    <button class="fbtn" onclick="setFilter(this,'sp')">SINGLEPLAYER</button>
+    <button class="fbtn" onclick="setFilter(this,'mp')">MULTIPLAYER</button>
+    <button class="fbtn" onclick="setFilter(this,'puzzle')">PUZZLE</button>
+    <button class="fbtn" onclick="setFilter(this,'hard')">HARD</button>
+  </div>
+
+  <div id="gridSlot">
+    <div class="state-box"><div class="spinner"></div>Loading community levels…</div>
+  </div>
+
+</div>
+
+<footer>
+  LOCKESC WORKSHOP &nbsp;·&nbsp; powered by <a id="issuesApiLink" href="#" target="_blank">GitHub Issues API</a>
+  &nbsp;·&nbsp; <a href="releases.html">releases</a>
+  &nbsp;·&nbsp; <a id="newIssueFooter" href="#" target="_blank">submit a level ↗</a>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════
+//  ↓ SET YOUR REPO HERE (must match releases.html)
+const OWNER = 'GoodPltheSniperer';
+const REPO  = 'LockESC';
+// ═══════════════════════════════════════════
+// Label that marks an issue as a level submission.
+// Create this label in your repo: GitHub → Issues → Labels → New label
+const LEVEL_LABEL = 'level-submission';
+// ═══════════════════════════════════════════
+
+const GH      = `https://github.com/${OWNER}/${REPO}`;
+const API_ISS = `https://api.github.com/repos/${OWNER}/${REPO}/issues`;
+
+// Pre-filled new-issue URL with template body
+const TEMPLATE_BODY = encodeURIComponent(
+`## Level Name
+<!-- your level's display name -->
+
+## Description
+<!-- short description of the mission / puzzle -->
+
+## Type
+<!-- singleplayer | multiplayer -->
+
+## Difficulty
+<!-- easy | medium | hard -->
+
+## Tags
+<!-- comma-separated: puzzle, speedrun, no-kill, etc. -->
+
+## Download
+<!-- Attach the .zip of your .ler or .lep bundle by dragging it into this text area -->
+`);
+const NEW_ISSUE_URL =
+  `${GH}/issues/new?labels=${encodeURIComponent(LEVEL_LABEL)}&title=Level+Submission%3A+&body=${TEMPLATE_BODY}`;
+
+// Wire links
+document.getElementById('ghLink').href         = GH;
+document.getElementById('submitBtn').href       = NEW_ISSUE_URL;
+document.getElementById('newIssueFooter').href  = NEW_ISSUE_URL;
+document.getElementById('issuesApiLink').href   =
+  `${API_ISS}?labels=${encodeURIComponent(LEVEL_LABEL)}&state=open`;
+
+// ── Label helpers ──────────────────────────────────────────────────────────────
+
+const LEVEL_ICONS = ['🏭','🏛️','🚢','🔬','🌆','🏦','🏗️','🕌','🛳️','🏚️'];
+function iconFor(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return LEVEL_ICONS[h % LEVEL_ICONS.length];
+}
+
+const TAG_CLASSES = {
+  sp: 'ltag-sp', singleplayer: 'ltag-sp',
+  mp: 'ltag-mp', multiplayer: 'ltag-mp',
+  easy: 'ltag-easy', medium: 'ltag-med', hard: 'ltag-hard',
+  puzzle: 'ltag-puzz', speedrun: 'ltag-misc', 'no-kill': 'ltag-misc', escape: 'ltag-misc',
+};
+
+function tagsFromIssue(issue) {
+  // Tags come from GitHub labels (minus the base level-submission label)
+  return (issue.labels || [])
+    .map(l => l.name.toLowerCase())
+    .filter(n => n !== LEVEL_LABEL.toLowerCase());
+}
+
+function renderTagPills(tags) {
+  return tags.map(t => {
+    const cls = TAG_CLASSES[t] || 'ltag-misc';
+    return `<span class="ltag ${cls}">${t.toUpperCase()}</span>`;
+  }).join('');
+}
+
+// ── Parse level title from issue title ───────────────────────────────────────
+function parseLevelTitle(issueTitle) {
+  // Strip "Level Submission: " prefix if present
+  return issueTitle.replace(/^level\s+submission\s*:\s*/i, '').trim() || issueTitle;
+}
+
+// ── Extract download links from issue body ───────────────────────────────────
+// GitHub attaches files as: https://github.com/.../files/.../name.zip
+function extractDownloads(body) {
+  if (!body) return [];
+  const re = /https:\/\/github\.com\/[^\s)>]+\.(?:zip|ler|lep)/gi;
+  return [...new Set(body.match(re) || [])];
+}
+
+// ── Extract short description (first non-header, non-empty paragraph) ────────
+function extractDesc(body) {
+  if (!body) return '';
+  const lines = body.split('\n').filter(l => l.trim() && !l.startsWith('#') && !l.startsWith('<!--'));
+  const first = lines[0] || '';
+  return first.length > 120 ? first.slice(0, 117) + '…' : first;
+}
+
+// ── Filter state ──────────────────────────────────────────────────────────────
+let _all = [];
+let _activeFilter = 'all';
+
+function setFilter(btn, f) {
+  _activeFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchQ').value.toLowerCase();
+  document.querySelectorAll('.lcard').forEach(c => {
+    const tags = (c.dataset.tags || '').toLowerCase();
+    const txt  = c.dataset.text  || '';
+    const typeOk =
+      _activeFilter === 'all' ||
+      (_activeFilter === 'sp'     && (tags.includes('sp') || tags.includes('singleplayer'))) ||
+      (_activeFilter === 'mp'     && (tags.includes('mp') || tags.includes('multiplayer'))) ||
+      (_activeFilter === 'puzzle' && tags.includes('puzzle')) ||
+      (_activeFilter === 'hard'   && tags.includes('hard'));
+    const qOk = !q || txt.includes(q);
+    c.style.display = typeOk && qOk ? '' : 'none';
+  });
+}
+
+// ── Render one card ───────────────────────────────────────────────────────────
+function renderCard(issue, idx) {
+  const title  = parseLevelTitle(issue.title);
+  const author = issue.user?.login || 'unknown';
+  const date   = (issue.created_at || '').slice(0, 10);
+  const tags   = tagsFromIssue(issue);
+  const desc   = extractDesc(issue.body);
+  const dls    = extractDownloads(issue.body);
+  const icon   = iconFor(title);
+  const delay  = Math.min(idx * 0.05, 0.5);
+
+  return `
+  <a class="lcard" href="#" onclick="openModal(${issue.number});return false"
+     data-num="${issue.number}"
+     data-tags="${tags.join(' ')}"
+     data-text="${(title + ' ' + author + ' ' + desc).toLowerCase()}"
+     style="animation-delay:${delay}s">
+    <div class="lcard-thumb">
+      <div class="grid-bg"></div>
+      ${icon}
+    </div>
+    <div class="lcard-body">
+      <div class="lcard-title">${title}</div>
+      <div class="lcard-author">by ${author} &nbsp;·&nbsp; ${date}</div>
+      <div class="tag-row">${renderTagPills(tags)}</div>
+      ${desc ? `<div class="lcard-desc">${desc}</div>` : ''}
+      <div class="lcard-foot">
+        <div class="lcard-stats">
+          <span>💬 ${issue.comments}</span>
+          <span>👍 ${issue.reactions?.['+1'] || 0}</span>
+        </div>
+        ${dls.length
+          ? `<a href="${dls[0]}" class="dl-sm" onclick="event.stopPropagation()" download>↓ DOWNLOAD</a>`
+          : `<a href="${GH}/issues/${issue.number}" class="dl-sm" target="_blank" onclick="event.stopPropagation()">VIEW ↗</a>`}
+      </div>
+    </div>
+  </a>`;
+}
+
+// ── Modal ─────────────────────────────────────────────────────────────────────
+let _issueCache = {};
+
+function openModal(num) {
+  const issue = _issueCache[num];
+  if (!issue) return;
+  const title  = parseLevelTitle(issue.title);
+  const author = issue.user?.login || 'unknown';
+  const date   = (issue.created_at || '').slice(0,10);
+  const tags   = tagsFromIssue(issue);
+  const body   = issue.body || '_No description provided._';
+  const dls    = extractDownloads(body);
+
+  document.getElementById('modalTitle').textContent  = title;
+  document.getElementById('modalAuthor').textContent = `by ${author} · ${date} · issue #${num}`;
+  document.getElementById('modalTags').innerHTML     = renderTagPills(tags);
+  document.getElementById('modalBody').innerHTML     = marked.parse(body);
+
+  const dlArea = document.getElementById('modalDl');
+  dlArea.innerHTML = '';
+  dls.forEach((url, i) => {
+    const a = document.createElement('a');
+    a.href = url; a.download = ''; a.className = 'dl-main';
+    a.innerHTML = `↓ ${i === 0 ? 'DOWNLOAD LEVEL' : 'DOWNLOAD ' + (i+1)}`;
+    dlArea.appendChild(a);
+  });
+  const gh = document.createElement('a');
+  gh.href = `${GH}/issues/${num}`; gh.target = '_blank'; gh.className = 'dl-gh';
+  gh.textContent = 'View on GitHub ↗';
+  dlArea.appendChild(gh);
+
+  document.getElementById('modalBg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+function updateStats(issues) {
+  const creators = new Set(issues.map(i => i.user?.login)).size;
+  const mpCount  = issues.filter(i =>
+    tagsFromIssue(i).some(t => t === 'mp' || t === 'multiplayer')).length;
+  const reactions = issues.reduce((s, i) => s + (i.reactions?.total_count || 0) + (i.comments || 0), 0);
+  document.getElementById('statTotal').textContent    = issues.length;
+  document.getElementById('statCreators').textContent = creators;
+  document.getElementById('statMP').textContent       = mpCount;
+  document.getElementById('statComments').textContent = reactions;
+}
+
+// ── Fetch ─────────────────────────────────────────────────────────────────────
+async function load() {
+  try {
+    const url = `${API_ISS}?labels=${encodeURIComponent(LEVEL_LABEL)}&state=open&per_page=100`;
+    const res = await fetch(url, { headers: { Accept: 'application/vnd.github+json' } });
+
+    if (res.status === 403 || res.status === 429)
+      document.getElementById('rateWarn').classList.add('show');
+
+    if (!res.ok) {
+      const msg = res.status === 404
+        ? `Repository <strong>${OWNER}/${REPO}</strong> not found.`
+        : `GitHub API returned ${res.status} ${res.statusText}`;
+      document.getElementById('gridSlot').innerHTML =
+        `<div class="state-box err">${msg}<div class="hint">
+          Edit <code>OWNER</code> and <code>REPO</code> in the &lt;script&gt; block.
+          Also make sure the label <code>${LEVEL_LABEL}</code> exists in your repo.
+        </div></div>`;
+      return;
+    }
+
+    const issues = await res.json();
+    _all = issues;
+    issues.forEach(i => _issueCache[i.number] = i);
+
+    if (!issues.length) {
+      document.getElementById('gridSlot').innerHTML =
+        `<div class="state-box">
+          No level submissions yet. Be the first!<br>
+          <a href="${NEW_ISSUE_URL}" target="_blank" style="color:var(--purple);margin-top:.6rem;display:inline-block">
+            Submit your level on GitHub ↗
+          </a>
+        </div>`;
+      updateStats([]);
+      return;
+    }
+
+    updateStats(issues);
+    document.getElementById('gridSlot').innerHTML =
+      `<div class="level-grid">${issues.map((iss,i) => renderCard(iss,i)).join('')}</div>`;
+
+  } catch(e) {
+    document.getElementById('gridSlot').innerHTML =
+      `<div class="state-box err">Network error.<div class="hint">${e.message}</div></div>`;
+  }
+}
+
+load();
+</script>
+</body>
+</html>
